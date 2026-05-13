@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Alerts — CrisisAI Sentinel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-title">Crisis Alerts Center</h1>
+    <p class="page-subtitle">Real-time detection log • Severity classification • Incident tracking</p>
+  </div>
+  <button class="btn-clear" onclick="clearAlerts()">🗑️ Clear Log</button>
+</div>
+
+<!-- Alert Severity Counts -->
+<div class="kpi-grid">
+  <div class="kpi-card critical-card">
+    <div class="kpi-icon">🔴</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="cntCritical">0</div>
+      <div class="kpi-label">CRITICAL</div>
+    </div>
+  </div>
+  <div class="kpi-card high-card">
+    <div class="kpi-icon">🟠</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="cntHigh">0</div>
+      <div class="kpi-label">HIGH</div>
+    </div>
+  </div>
+  <div class="kpi-card moderate-card">
+    <div class="kpi-icon">🟡</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="cntModerate">0</div>
+      <div class="kpi-label">MODERATE</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🔵</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="cntLow">0</div>
+      <div class="kpi-label">LOW</div>
+    </div>
+  </div>
+</div>
+
+<!-- Alert Log -->
+<div class="charts-row">
+  <div class="chart-card full-width">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">📋</span> Alert Log</div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterAlerts('all', this)">All</button>
+        <button class="filter-btn" onclick="filterAlerts('CRITICAL', this)">Critical</button>
+        <button class="filter-btn" onclick="filterAlerts('HIGH', this)">High</button>
+        <button class="filter-btn" onclick="filterAlerts('MODERATE', this)">Moderate</button>
+      </div>
+    </div>
+    <div class="alert-log" id="alertLog">
+      <div class="alert-empty">
+        <div class="alert-empty-icon">🛡️</div>
+        <div>Monitoring… No critical alerts yet.</div>
+        <div class="alert-empty-sub">Click "Simulate Crisis" in the sidebar to inject a test event.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Alert Timeline Chart -->
+<div class="charts-row">
+  <div class="chart-card full-width">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">🕒</span> Alert Frequency Timeline</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="alertTimelineChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let allAlerts = [];
+let currentFilter = 'all';
+
+document.addEventListener('DOMContentLoaded', () => {
+  initAlertsPage();
+  loadAlerts();
+});
+
+async function loadAlerts() {
+  const res = await fetch('/api/alerts');
+  allAlerts = await res.json();
+  renderAlerts();
+}
+
+function filterAlerts(level, btn) {
+  currentFilter = level;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAlerts();
+}
+
+function renderAlerts() {
+  const log = document.getElementById('alertLog');
+  const filtered = currentFilter === 'all' ? allAlerts :
+    allAlerts.filter(a => a.severity_level === currentFilter);
+
+  if (!filtered.length) {
+    log.innerHTML = `<div class="alert-empty">
+      <div class="alert-empty-icon">🛡️</div>
+      <div>No ${currentFilter === 'all' ? '' : currentFilter} alerts yet.</div>
+    </div>`;
+    return;
+  }
+
+  log.innerHTML = filtered.map(a => `
+    <div class="alert-row" style="border-left-color:${a.severity_color}">
+      <div class="alert-row-header">
+        <span class="alert-icon">${a.severity_icon}</span>
+        <span class="alert-id">#${a.alert_id}</span>
+        <span class="alert-sev" style="background:${a.severity_color}20;color:${a.severity_color}">
+          ${a.severity_level}
+        </span>
+        <span class="alert-loc">📍 ${a.location}</span>
+        <span class="alert-type">${a.disaster_type?.toUpperCase()}</span>
+        <span class="alert-score">Score: ${a.crisis_score?.toFixed(3)}</span>
+        <span class="alert-time">${a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : ''}</span>
+      </div>
+      <div class="alert-action">▶ ${a.recommended_action}</div>
+      ${a.sample_tweets?.length ? `<div class="alert-tweets">
+        ${a.sample_tweets.map(t => `<div class="alert-tweet-sample">"${t}"</div>`).join('')}
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+function clearAlerts() {
+  allAlerts = [];
+  renderAlerts();
+}
+</script>
+{% endblock %}

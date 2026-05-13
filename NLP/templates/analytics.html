@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Analytics — CrisisAI Sentinel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-title">ML Analytics Engine</h1>
+    <p class="page-subtitle">Clustering • Topic Modeling • Anomaly Scores • Model Performance</p>
+  </div>
+</div>
+
+<!-- Model Performance Cards -->
+<div class="kpi-grid analytics-grid">
+  <div class="kpi-card info-card">
+    <div class="kpi-icon">🤖</div>
+    <div class="kpi-body">
+      <div class="kpi-label">Algorithm Suite</div>
+      <div class="algo-tags">
+        <span class="algo-tag">DistilBERT</span>
+        <span class="algo-tag">SentenceBERT</span>
+        <span class="algo-tag">Zero-Shot</span>
+        <span class="algo-tag">K-Means</span>
+        <span class="algo-tag">DBSCAN</span>
+        <span class="algo-tag">IsoForest</span>
+      </div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">📐</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="silhouetteScore">—</div>
+      <div class="kpi-label">Silhouette Score</div>
+      <div class="kpi-sub">K-Means quality</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🧪</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="dbScore">—</div>
+      <div class="kpi-label">Davies-Bouldin</div>
+      <div class="kpi-sub">Lower = better</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🌀</div>
+    <div class="kpi-body">
+      <div class="kpi-value">8</div>
+      <div class="kpi-label">K-Means Clusters</div>
+      <div class="kpi-sub">Dense embedding space</div>
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🧠</div>
+    <div class="kpi-body">
+      <div class="kpi-value">8</div>
+      <div class="kpi-label">Zero-Shot Topics</div>
+      <div class="kpi-sub">NLI classification</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="charts-row" style="height:300px;min-height:300px;flex:none">
+  <div class="chart-card wider">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">📊</span> Distress Distribution</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="distHistogram"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">🎪</span> Anomaly Score Distribution</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="anomalyHistogram"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Topics Detail -->
+<div class="charts-row" style="min-height:180px;flex:none">
+  <div class="chart-card full-width">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">🔖</span> Discovered Topics (LDA)</div>
+    </div>
+    <div class="topics-grid" id="topicsGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Cluster Profiles -->
+<div class="charts-row" style="height:300px;min-height:300px;flex:none">
+  <div class="chart-card full-width">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">🫧</span> Cluster Crisis Profiles</div>
+    </div>
+    <div class="chart-body tall">
+      <canvas id="clusterProfileChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Source Breakdown -->
+<div class="charts-row" style="height:280px;min-height:280px;flex:none">
+  <div class="chart-card full-width">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">📡</span> Source Platform Breakdown</div>
+    </div>
+    <div class="chart-body tall">
+      <canvas id="sourceBreakdownChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Signal Weights -->
+<div class="charts-row" style="min-height:260px;flex:none">
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">⚖️</span> Crisis Score Weights</div>
+    </div>
+    <div class="weights-table">
+      <div class="weight-row"><span class="weight-name">Sentiment Distress</span><div class="weight-bar-cont"><div class="weight-bar" style="width:25%;background:#ef4444"></div></div><span class="weight-pct">25%</span></div>
+      <div class="weight-row"><span class="weight-name">Anomaly Score</span><div class="weight-bar-cont"><div class="weight-bar" style="width:25%;background:#f97316"></div></div><span class="weight-pct">25%</span></div>
+      <div class="weight-row"><span class="weight-name">Cluster Crisis Ratio</span><div class="weight-bar-cont"><div class="weight-bar" style="width:20%;background:#eab308"></div></div><span class="weight-pct">20%</span></div>
+      <div class="weight-row"><span class="weight-name">Keyword Density</span><div class="weight-bar-cont"><div class="weight-bar" style="width:15%;background:#22c55e"></div></div><span class="weight-pct">15%</span></div>
+      <div class="weight-row"><span class="weight-name">Volume Spike</span><div class="weight-bar-cont"><div class="weight-bar" style="width:10%;background:#3b82f6"></div></div><span class="weight-pct">10%</span></div>
+      <div class="weight-row"><span class="weight-name">Engagement Signal</span><div class="weight-bar-cont"><div class="weight-bar" style="width:5%;background:#8b5cf6"></div></div><span class="weight-pct">5%</span></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">📈</span> Sentiment Trend</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="sentimentTrendChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  initAnalytics();
+});
+</script>
+{% endblock %}

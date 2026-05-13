@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}CrisisAI — Social Media Sentinel{% endblock %}</title>
+  <meta name="description" content="Real-time social media sentiment and crisis detection system powered by Deep Learning Transformers and unsupervised ML for disaster management."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">🚨</div>
+      <div class="logo-text">
+        <span class="logo-title">CrisisAI</span>
+        <span class="logo-sub">Sentinel v2.0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="live-indicator" id="liveIndicator">
+    <span class="live-dot"></span>
+    <span class="live-text">LIVE STREAM</span>
+  </div>
+
+  <ul class="nav-menu">
+    <li class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+      <a href="/" class="nav-link">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+    </li>
+    <li class="nav-item {% if request.endpoint == 'analytics' %}active{% endif %}">
+      <a href="/analytics" class="nav-link">
+        <span class="nav-icon">🔬</span>
+        <span class="nav-label">Analytics</span>
+      </a>
+    </li>
+    <li class="nav-item {% if request.endpoint == 'alerts_page' %}active{% endif %}">
+      <a href="/alerts" class="nav-link">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Alerts</span>
+        <span class="nav-badge" id="alertBadge">0</span>
+      </a>
+    </li>
+    <li class="nav-item {% if request.endpoint == 'contact' %}active{% endif %}">
+      <a href="/contact" class="nav-link">
+        <span class="nav-icon">📬</span>
+        <span class="nav-label">Contact</span>
+      </a>
+    </li>
+    {% if session.get('user') %}
+    <li class="nav-item">
+      <a href="/logout" class="nav-link">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Logout</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="nav-item {% if request.endpoint == 'login' %}active{% endif %}">
+      <a href="/login" class="nav-link">
+        <span class="nav-icon">🔐</span>
+        <span class="nav-label">Login</span>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+
+  <div class="sidebar-footer">
+    <div class="crisis-meter-mini">
+      <div class="meter-label">Crisis Index</div>
+      <div class="meter-bar-container">
+        <div class="meter-bar" id="sidebarCrisisBar"></div>
+      </div>
+      <div class="meter-value" id="sidebarCrisisVal">0.00</div>
+    </div>
+    <button class="btn-simulate" id="btnSimulate" onclick="simulateCrisis()">
+      ⚡ Simulate Crisis
+    </button>
+  </div>
+</nav>
+
+<!-- ── Main Content ── -->
+<main class="main-content">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── Alert Toast ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

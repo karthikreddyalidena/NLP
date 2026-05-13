@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CrisisAI Sentinel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-title-group">
+    <h1 class="page-title">Real-Time Crisis Monitor</h1>
+    <p class="page-subtitle">Unsupervised ML • Sentiment Analysis • Anomaly Detection</p>
+  </div>
+  <div class="header-right">
+    <div class="clock" id="clockDisplay">--:--:--</div>
+    <div class="system-tag">DISASTER MGMT SYSTEM</div>
+  </div>
+</div>
+
+<!-- ── KPI Row ── -->
+<div class="kpi-grid">
+  <div class="kpi-card crisis" id="kpiCrisis">
+    <div class="kpi-icon">🚨</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="kpiCrisisScore">0.00</div>
+      <div class="kpi-label">Crisis Index</div>
+      <div class="kpi-badge" id="kpiSeverityBadge">MONITORING</div>
+    </div>
+    <div class="kpi-radial" id="kpiRadial"></div>
+  </div>
+  <div class="kpi-card tweets">
+    <div class="kpi-icon">💬</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="kpiTweets">0</div>
+      <div class="kpi-label">Posts Analyzed</div>
+      <div class="kpi-trend up">+live stream</div>
+    </div>
+  </div>
+  <div class="kpi-card alerts">
+    <div class="kpi-icon">⚠️</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="kpiAlerts">0</div>
+      <div class="kpi-label">Active Alerts</div>
+      <div class="kpi-sub" id="kpiAlertBreak">—</div>
+    </div>
+  </div>
+  <div class="kpi-card sentiment">
+    <div class="kpi-icon">📉</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="kpiDistress">0.00</div>
+      <div class="kpi-label">Avg. Distress</div>
+      <div class="kpi-bar-wrap"><div class="kpi-bar" id="kpiDistressBar"></div></div>
+    </div>
+  </div>
+  <div class="kpi-card anomaly">
+    <div class="kpi-icon">🔍</div>
+    <div class="kpi-body">
+      <div class="kpi-value" id="kpiAnomalies">0</div>
+      <div class="kpi-label">Anomalies</div>
+      <div class="kpi-trend" id="kpiVolSpike">Monitoring…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Charts Row 1 ── -->
+<div class="charts-row" style="height: 360px; min-height: 360px; flex: none;">
+
+  <!-- Crisis Score Timeline -->
+  <div class="chart-card wide">
+    <div class="chart-header">
+      <div class="chart-title">
+        <span class="chart-icon">📈</span> Crisis Score Timeline
+      </div>
+      <div class="chart-badge live">LIVE</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="crisisTimelineChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Sentiment Donut -->
+  <div class="chart-card narrow">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">😤</span> Sentiment Split</div>
+    </div>
+    <div class="chart-body center">
+      <canvas id="sentimentDonutChart"></canvas>
+    </div>
+    <div class="legend-row" id="sentimentLegend">
+      <span class="legend-dot neg"></span>Negative
+      <span class="legend-dot neu"></span>Neutral
+      <span class="legend-dot pos"></span>Positive
+    </div>
+  </div>
+</div>
+
+<!-- ── Charts Row 2 ── -->
+<div class="charts-row" style="height: 380px; min-height: 380px; flex: none;">
+
+  <!-- Interactive Map -->
+  <div class="chart-card map-card">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">🗺️</span> Geographic Crisis Map</div>
+      <div class="map-legend-row">
+        <span class="map-dot critical"></span>Critical
+        <span class="map-dot high"></span>High
+        <span class="map-dot moderate"></span>Moderate
+        <span class="map-dot low"></span>Low
+      </div>
+    </div>
+    <div id="crisisMap" class="map-container"></div>
+  </div>
+
+  <!-- Topic Distribution -->
+  <div class="chart-card narrow">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">📂</span> Topic Distribution</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="topicBarChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── Live Feed + Top Anomalies ── -->
+<div class="charts-row" style="height: 380px; min-height: 380px; flex: none;">
+
+  <!-- Live Tweet Feed -->
+  <div class="chart-card feed-card">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">📡</span> Live Post Feed</div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterFeed('all')">All</button>
+        <button class="filter-btn" onclick="filterFeed('twitter')">🐦 Twitter</button>
+        <button class="filter-btn" onclick="filterFeed('instagram')">📸 Insta</button>
+        <button class="filter-btn" onclick="filterFeed('facebook')">📘 FB</button>
+        <button class="filter-btn" onclick="filterFeed('reddit')">👾 Reddit</button>
+      </div>
+      <span class="pulse-ring"></span>
+    </div>
+    <div class="feed-container" id="tweetFeed"></div>
+  </div>
+
+  <!-- Component Radar -->
+  <div class="chart-card narrow">
+    <div class="chart-header">
+      <div class="chart-title"><span class="chart-icon">🎯</span> Signal Components</div>
+    </div>
+    <div class="chart-body">
+      <canvas id="radarChart"></canvas>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Dashboard-specific initialization
+document.addEventListener('DOMContentLoaded', () => {
+  initDashboard();
+});
+</script>
+{% endblock %}

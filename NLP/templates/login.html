@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrisisAI Sentinel — Login</title>
+  <meta name="description" content="Secure login to CrisisAI Sentinel real-time disaster monitoring system." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --dark: lab(3.19% 1.6 -6.79);
+      --card: #0d1421;
+      --border: #1e2d45;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --text: #f0f4ff;
+      --muted: #8899bb;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      position: relative;
+    }
+
+    /* ── 3D Canvas Background ── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ── Overlay gradient ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(59, 130, 246, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse at 80% 80%, rgba(239, 68, 68, 0.06) 0%, transparent 60%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ── Main layout ── */
+    .login-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Left Intro Panel ── */
+    .intro-panel {
+      flex: 1;
+      max-width: 520px;
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: slideInLeft 0.8s ease both;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+
+    .brand-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--red), #ff6b6b);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 40px rgba(239, 68, 68, 0.7), 0 0 60px rgba(239, 68, 68, 0.2);
+      }
+    }
+
+    .brand-name {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 0%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: -2px;
+    }
+
+    .intro-heading {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+    }
+
+    .intro-heading span {
+      color: var(--cyan);
+    }
+
+    .intro-desc {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 400px;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: #c8d5ef;
+    }
+
+    .feature-pill {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: var(--blue);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 24px;
+      margin-top: 8px;
+    }
+
+    .stat-item {
+      text-align: left;
+    }
+
+    .stat-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 1px;
+      height: 340px;
+      background: linear-gradient(to bottom, transparent, var(--border) 20%, var(--border) 80%, transparent);
+      align-self: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Login Card ── */
+    .login-card {
+      width: 400px;
+      background: rgba(13, 20, 33, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      margin: 24px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+      animation: slideInRight 0.8s ease both 0.2s;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px 12px 42px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      background: rgba(59, 130, 246, 0.06);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      font-size: 13px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--muted);
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    input[type="checkbox"] {
+      accent-color: var(--blue);
+      width: 14px;
+      height: 14px;
+    }
+
+    .forgot-link {
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+      color: var(--cyan);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-login:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(59, 130, 246, 0.5);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .google-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 14px;
+      background: white;
+      color: #3c4043;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid #dadce0;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .google-btn:hover {
+      background: #f8f9fa;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+    }
+
+    .google-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .demo-row {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .demo-text {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .btn-demo {
+      display: inline-block;
+      padding: 9px 22px;
+      background: transparent;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--green);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-demo:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--green);
+    }
+
+    /* ── Animated status badge ── */
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    /* ── Error shake ── */
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20%,
+      60% {
+        transform: translateX(-6px);
+      }
+
+      40%,
+      80% {
+        transform: translateX(6px);
+      }
+    }
+
+    .error-msg {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+      animation: shake 0.4s ease;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+
+      .intro-panel,
+      .divider {
+        display: none;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 420px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 3D Animated background canvas -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="overlay"></div>
+
+  <div class="login-wrapper">
+
+    <!-- LEFT: 3D Intro Panel -->
+    <div class="intro-panel">
+      <div class="brand-logo">
+        <div class="brand-icon">🚨</div>
+        <div>
+          <div class="brand-name">CrisisAI Sentinel</div>
+          <div class="brand-sub">v2.0 — Deep Learning Edition</div>
+        </div>
+      </div>
+
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        SYSTEM LIVE
+      </div>
+
+      <h1 class="intro-heading">
+        Real-Time Crisis<br />
+        <span>Detection Engine</span>
+      </h1>
+
+      <p class="intro-desc">
+        An AI-powered platform that monitors global social media and disaster feeds to detect emerging crises in real
+        time using advanced Deep Learning and unsupervised machine learning.
+      </p>
+
+      <ul class="feature-list">
+        <li>
+          <span class="feature-pill">DistilBERT</span>
+          Transformer-based sentiment analysis
+        </li>
+        <li>
+          <span class="feature-pill">Zero-Shot</span>
+          Dynamic disaster topic classification
+        </li>
+        <li>
+          <span class="feature-pill">GDACS · ReliefWeb</span>
+          Real-time global crisis data feeds
+        </li>
+        <li>
+          <span class="feature-pill">Socket.IO</span>
+          Sub-second live dashboard streaming
+        </li>
+      </ul>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-val" id="statSources">5+</div>
+          <div class="stat-lbl">Data Sources</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val" id="statModels">4</div>
+          <div class="stat-lbl">AI Models</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">~2s</div>
+          <div class="stat-lbl">Latency</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- RIGHT: Login Card -->
+    <div class="login-card">
+      <div class="card-title">Welcome back 👋</div>
+      <div class="card-subtitle">Sign in to access the crisis monitoring dashboard</div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="username" placeholder="Enter username" autocomplete="username" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" placeholder="Enter password" autocomplete="current-password"
+              required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="rememberMe" /> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">🔐 Sign In</button>
+
+        <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          Sign in with Google
+        </button>
+
+        <div class="error-msg" id="errorMsg">Invalid credentials. Use admin / crisis2024</div>
+      </form>
+
+      <div class="demo-row">
+        <div class="demo-text">Want to explore without signing in?</div>
+        <a href="/" class="btn-demo">⚡ Launch Demo Dashboard</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Demo credentials ─────────────────────────────────────────────
+    const DEMO_USER = 'admin';
+    const DEMO_PASS = 'crisis2024';
+
+    function triggerWarpSpeed() {
+      document.querySelector('.login-wrapper').style.opacity = '0';
+      document.querySelector('.login-wrapper').style.transition = 'opacity 0.5s ease';
+      isWarpSpeed = true; // Trigger 3D canvas acceleration
+    }
+
+    async function executeBackendLogin(payload, btnElement, successText) {
+      const err = document.getElementById('errorMsg');
+      btnElement.textContent = '⏳ Authenticating…';
+      btnElement.disabled = true;
+      err.classList.remove('visible');
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          btnElement.textContent = successText;
+          triggerWarpSpeed();
+          setTimeout(() => { window.location.href = '/'; }, 1500); // Wait for warp animation
+        } else {
+          err.textContent = data.error || 'Login failed';
+          err.classList.add('visible');
+          btnElement.textContent = '🔐 Sign In';
+          btnElement.disabled = false;
+        }
+      } catch (e) {
+        err.textContent = 'Network error. Please try again.';
+        err.classList.add('visible');
+        btnElement.textContent = '🔐 Sign In';
+        btnElement.disabled = false;
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      const rem = document.getElementById('rememberMe').checked;
+      const btn = document.getElementById('loginBtn');
+
+      executeBackendLogin({ username: u, password: p, remember: rem }, btn, '✅ Access Granted!');
+    }
+
+    function handleGoogleLogin() {
+      const btn = document.querySelector('.google-btn');
+      // Simulate standard Google OAuth pop-up delay
+      btn.textContent = '⏳ Waiting for Google...';
+      setTimeout(() => {
+        executeBackendLogin({ google_auth: true, email: 'admin@google.com' }, btn, '✅ Google Auth Success!');
+      }, 800);
+    }
+
+    // ── 3D Particle Background ────────────────────────────────────────
+    let isWarpSpeed = false;
+    (function () {
+      const canvas = document.getElementById('bg-canvas');
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const PARTICLE_COUNT = 110;
+      const LINES_DIST = 130;
+      let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+
+      window.addEventListener('mousemove', e => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      });
+
+      // Particle colors
+      const COLORS = ['#3b82f6', '#06b6d4', '#ef4444', '#8b5cf6', '#10b981'];
+
+      class Particle {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.z = Math.random() * 600 + 100;
+          this.vx = (Math.random() - 0.5) * 0.3;
+          this.vy = (Math.random() - 0.5) * 0.3;
+          this.r = Math.random() * 2 + 0.5;
+          this.col = COLORS[Math.floor(Math.random() * COLORS.length)];
+          this.alpha = Math.random() * 0.6 + 0.2;
+          // 3D rotation
+          this.rx = Math.random() * Math.PI * 2;
+          this.ry = Math.random() * Math.PI * 2;
+          this.vrx = (Math.random() - 0.5) * 0.002;
+          this.vry = (Math.random() - 0.5) * 0.002;
+        }
+        get screenX() {
+          // Simple perspective projection
+          const fov = 400;
+          return this.x + (this.x - canvas.width / 2) * (fov / this.z - 1);
+        }
+        get screenY() {
+          const fov = 400;
+          return this.y + (this.y - canvas.height / 2) * (fov / this.z - 1);
+        }
+        get size() {
+          return this.r * (400 / this.z);
+        }
+        update() {
+          // Warp speed acceleration logic
+          let currentZSpeed = 0;
+          if (isWarpSpeed) {
+            currentZSpeed = 15; // Fast forward zoom
+          }
+
+          this.z -= currentZSpeed;
+
+          this.x += this.vx;
+          this.y += this.vy;
+          this.rx += this.vrx;
+          this.ry += this.vry;
+
+          // mouse parallax
+          if (!isWarpSpeed) {
+            const dx = (mouse.x - canvas.width / 2) / canvas.width;
+            const dy = (mouse.y - canvas.height / 2) / canvas.height;
+            this.x += dx * 0.15;
+            this.y += dy * 0.15;
+          }
+
+          // wrap
+          if (this.x < 0) this.x = canvas.width;
+          if (this.x > canvas.width) this.x = 0;
+          if (this.y < 0) this.y = canvas.height;
+          if (this.y > canvas.height) this.y = 0;
+
+          // wrap Z axis for warp tunnel effect
+          if (this.z < 1) {
+            this.z = 700;
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+          }
+        }
+        draw() {
+          const sx = this.screenX, sy = this.screenY, sz = this.size;
+          ctx.beginPath();
+          ctx.arc(sx, sy, Math.max(sz, 0.5), 0, Math.PI * 2);
+          ctx.fillStyle = this.col + Math.floor(this.alpha * 255).toString(16).padStart(2, '0');
+          ctx.fill();
+        }
+      }
+
+      const particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle());
+
+      function drawLines() {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const a = particles[i], b = particles[j];
+            const dx = a.screenX - b.screenX;
+            const dy = a.screenY - b.screenY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < LINES_DIST) {
+              const alpha = (1 - dist / LINES_DIST) * 0.25;
+              ctx.beginPath();
+              ctx.moveTo(a.screenX, a.screenY);
+              ctx.lineTo(b.screenX, b.screenY);
+              ctx.strokeStyle = `rgba(59,130,246,${alpha})`;
+              ctx.lineWidth = 0.6;
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Dark gradient fill
+        const grad = ctx.createRadialGradient(
+          canvas.width / 2, canvas.height / 2, 0,
+          canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 1.2
+        );
+        grad.addColorStop(0, '#090d1a');
+        grad.addColorStop(1, '#050810');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => { p.update(); p.draw(); });
+        drawLines();
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+  </script>
+</body>
+
+</html>
